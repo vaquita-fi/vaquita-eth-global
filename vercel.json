@@ -1,6 +1,0 @@
-{
-  "buildCommand": "npm run build",
-  "installCommand": "bash scripts/init-submodule.sh && npm install",
-  "framework": "nextjs"
-}
-
