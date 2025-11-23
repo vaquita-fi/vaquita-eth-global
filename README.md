@@ -21,7 +21,7 @@ Vaquita addresses this by making DeFi fun,, social, and financially rewarding
   For example: if 100 users deposit $100 each and 20 withdraw early, their generated interest is redistributed among the 80 who stay, boosting their APY from ~5% to ~8%. 
 
 - **Game Theory Incentives:**  
-  Rewards are redistributed to long-term savers, encouraging consistency and reducing the temptation of early withdrawals.
+  Rewards are redistributed to long-term savers,  encouraging consistency and reducing the temptation of early withdrawals.
 
 - **Gamified Experience:**  
   Users interact with visual elements (like cow avatars representing savings goals) and track their progress in a fun, engaging way.
