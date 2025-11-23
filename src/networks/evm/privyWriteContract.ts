@@ -1,6 +1,6 @@
 import { DepositFn } from '@/core-ui/types';
 import { usePrivyStore } from '@/stores';
-import { encodeFunctionData, type Abi, type AbiFunction } from 'viem';
+import { encodeFunctionData, type Abi, type AbiFunction, type TransactionReceipt } from 'viem';
 import { createPublicClient, http, type Chain } from 'viem';
 
 type PrivySendTransaction = (params: {
@@ -40,7 +40,7 @@ export const setPrivySendTransaction = (sendTransaction: PrivySendTransaction) =
 export const privyWriteContract = async (
   params: PrivyWriteContractParams,
   log: Parameters<DepositFn>[3]
-): Promise<{ txHash: `0x${string}`; transaction: any }> => {
+): Promise<{ txHash: `0x${string}`; transaction: TransactionReceipt }> => {
   if (!privySendTransactionRef) {
     throw new Error('Privy sendTransaction not initialized. Make sure PrivyTransactionProvider is mounted.');
   }
