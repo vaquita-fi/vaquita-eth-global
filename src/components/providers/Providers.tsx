@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 import { base } from 'viem/chains';
 import { PrivyProviderSync } from './PrivyProviderSync';
+import { PrivyTransactionProvider } from './PrivyTransactionProvider';
 import { TransactionsProvider } from './TransactionsProvider';
 
 export const queryClient = new QueryClient();
@@ -132,11 +133,12 @@ const Main = ({ children }: { children: ReactNode }) => {
         {isEVM.is ? (
           <PrivyProvider
             appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
-            config={{ loginMethods: ['wallet', 'email'], defaultChain: base, supportedChains: [base] }}
+            config={{ loginMethods: ['email'], defaultChain: base, supportedChains: [base] }}
           >
             <QueryClientProvider client={queryClient}>
               <WagmiProvider config={wagmiConfig}>
                 <PrivyProviderSync />
+                <PrivyTransactionProvider />
                 <NetworksProvider>{children}</NetworksProvider>
               </WagmiProvider>
               <AblyChanges />
