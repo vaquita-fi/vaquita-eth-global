@@ -133,7 +133,7 @@ const Main = ({ children }: { children: ReactNode }) => {
         {isEVM.is ? (
           <PrivyProvider
             appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
-            config={{ loginMethods: ['email'], defaultChain: base, supportedChains: [base] }}
+            config={{ loginMethods: ['email', 'passkey'], defaultChain: base, supportedChains: [base] }}
           >
             <QueryClientProvider client={queryClient}>
               <WagmiProvider config={wagmiConfig}>
