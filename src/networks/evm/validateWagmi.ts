@@ -2,15 +2,13 @@ import { NetworkResponseDTO } from '@/core-ui/types';
 import { config } from '@/networks/evm/config';
 import { usePrivyStore } from '@/stores';
 import type { ConnectedWallet } from '@privy-io/react-auth';
-import { getAccount, GetAccountReturnType, getWalletClient, GetWalletClientReturnType } from '@wagmi/core';
+import { getAccount, GetAccountReturnType } from '@wagmi/core';
 import type { AbiFunction } from 'viem';
-import { createWalletClient, custom } from 'viem';
 
 type VerifyWagmiSuccess = {
   userWalletAddress: `0x${string}`;
   chainId: number;
   chain: GetAccountReturnType['chain'] | undefined;
-  walletClient: GetWalletClientReturnType;
   abiFunction?: AbiFunction;
   errorMessage: '';
 };
@@ -19,7 +17,6 @@ type VerifyWagmiError = {
   userWalletAddress?: undefined;
   chainId?: undefined;
   chain?: undefined;
-  walletClient?: undefined;
   abiFunction?: undefined;
   errorMessage: string;
 };
@@ -47,16 +44,9 @@ export const validateWagmi = async (
   const account = getAccount(config);
   let { chain } = account;
   let userWalletAddress = account.address as `0x${string}` | undefined;
-  let walletClient: GetWalletClientReturnType | null = null;
-  try {
-    walletClient = (await getWalletClient(config)) as GetWalletClientReturnType | null;
-  } catch (error) {
-    console.debug('validateWagmi:getWalletClient failed', error);
-    walletClient = null;
-  }
   let chainId: number | undefined = chain?.id;
 
-  if (!userWalletAddress || !walletClient || !chainId) {
+  if (!userWalletAddress || !chainId) {
     const { wallets } = usePrivyStore.getState();
     const evmWallets = wallets.filter(isEvmWallet);
 
@@ -101,20 +91,7 @@ export const validateWagmi = async (
         chain = config.chains.find((candidate) => candidate.id === chainId) ?? chain;
       }
 
-      if (!walletClient && provider && userWalletAddress) {
-        try {
-          walletClient = createWalletClient({
-            account: userWalletAddress,
-            chain: chain ?? undefined,
-            transport: custom(provider),
-          }) as GetWalletClientReturnType;
-        } catch (error) {
-          console.debug('validateWagmi:createWalletClient failed', error);
-          walletClient = null;
-        }
-      }
-
-      if (userWalletAddress && walletClient && chainId) {
+      if (userWalletAddress && chainId) {
         break;
       }
     }
@@ -123,12 +100,6 @@ export const validateWagmi = async (
   if (!userWalletAddress) {
     return {
       errorMessage: 'User wallet not found.',
-    };
-  }
-
-  if (!walletClient) {
-    return {
-      errorMessage: 'Wallet client not available',
     };
   }
 
@@ -155,7 +126,6 @@ export const validateWagmi = async (
     chain,
     chainId,
     userWalletAddress,
-    walletClient,
     abiFunction,
     errorMessage: '',
   };

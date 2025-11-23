@@ -2,23 +2,23 @@ import { DepositFn, NetworkResponseDTO, WithdrawFn } from '@/core-ui/types';
 import { buildArgsFromInputs } from '@/networks/evm/buildArgsFromInputs';
 
 import { generatePermitSignature } from '@/networks/evm/generatePermitSignature';
+import { privyWriteContract } from '@/networks/evm/privyWriteContract';
 import { validateWagmi } from '@/networks/evm/validateWagmi';
-import { evmWriteContract } from '@/networks/evm/writeContract';
 import { type Abi, parseUnits } from 'viem';
 
 export const liskTransactions = async (token: NetworkResponseDTO['tokens'][number]) => {
   const transactionDeposit: DepositFn = async (_, amount: number, lockPeriod, log) => {
     const functionName = 'deposit';
-    const { errorMessage, userWalletAddress, abiFunction = { inputs: [] } } = await validateWagmi(token, functionName);
-    if (errorMessage) {
-      log(errorMessage);
+    const { errorMessage, userWalletAddress, chainId, chain, abiFunction = { inputs: [] } } = await validateWagmi(token, functionName);
+    if (errorMessage || !chainId || !chain) {
+      log(errorMessage || 'Missing chain information');
       return {
         success: false,
         txHash: '',
         transaction: null,
         explorer: '',
         depositIdHex: '',
-        error: new Error(errorMessage),
+        error: new Error(errorMessage || 'Missing chain information'),
       };
     }
 
@@ -52,10 +52,11 @@ export const liskTransactions = async (token: NetworkResponseDTO['tokens'][numbe
       abi: token.vaquitaContractAbi as Abi,
       functionName,
       args,
-      gas: 1000000n,
+      chainId,
+      chain,
     };
 
-    const { txHash, transaction } = await evmWriteContract(writeContractParams, log);
+    const { txHash, transaction } = await privyWriteContract(writeContractParams, log);
 
     const depositIdHex = (transaction?.logs?.[transaction?.logs?.length - 1] as unknown as { topics: string[] })
       ?.topics?.[1];
@@ -74,16 +75,16 @@ export const liskTransactions = async (token: NetworkResponseDTO['tokens'][numbe
 
   const transactionWithdraw: WithdrawFn = async (_, depositIdHex, __, log) => {
     const functionName = 'withdraw';
-    const { errorMessage, userWalletAddress, abiFunction = { inputs: [] } } = await validateWagmi(token, functionName);
-    if (errorMessage) {
-      log(errorMessage);
+    const { errorMessage, userWalletAddress, chainId, chain, abiFunction = { inputs: [] } } = await validateWagmi(token, functionName);
+    if (errorMessage || !chainId || !chain) {
+      log(errorMessage || 'Missing chain information');
       return {
         success: false,
         txHash: '',
         transaction: null,
         explorer: '',
         depositIdHex: '',
-        error: new Error(errorMessage),
+        error: new Error(errorMessage || 'Missing chain information'),
       };
     }
 
@@ -102,9 +103,10 @@ export const liskTransactions = async (token: NetworkResponseDTO['tokens'][numbe
       abi: token.vaquitaContractAbi as Abi,
       functionName,
       args,
-      gas: 1000000n,
+      chainId,
+      chain,
     };
-    const { txHash, transaction } = await evmWriteContract(writeContractParams, log);
+    const { txHash, transaction } = await privyWriteContract(writeContractParams, log);
     if (transaction.status?.toString()?.toLowerCase() !== 'success') {
       return {
         success: false,
